@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<GetHostedZoneResponse xmlns="https://route53.amazonaws.com/doc/2010-10-01/">
+    <HostedZone>
+        <Id>/hostedzone/Z31PMW5OR1BPVA</Id>
+        <Name>example.com.</Name>
+        <CallerReference>CreateHostedZone, example.com, Wed Jun 15 2011 11:04:26 GMT+0100 (GMT Daylight Time)</CallerReference>
+        <Config/>
+    </HostedZone>
+    <DelegationSet>
+        <NameServers>
+            <NameServer>ns-1626.awsdns-11.co.uk</NameServer>
+            <NameServer>ns-262.awsdns-32.com</NameServer>
+            <NameServer>ns-1482.awsdns-57.org</NameServer>
+            <NameServer>ns-691.awsdns-22.net</NameServer>
+        </NameServers>
+    </DelegationSet>
+</GetHostedZoneResponse>

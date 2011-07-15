@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<ListResourceRecordSetsResponse xmlns="https://route53.amazonaws.com/doc/2011-05-05/">
+    <ResourceRecordSets>
+        <ResourceRecordSet>
+            <Name>example.com.</Name>
+            <Type>A</Type>
+            <AliasTarget>
+                <HostedZoneId>Z3NF1ZFGOM5OY2</HostedZoneId>
+                <DNSName>balancer-12924321560.eu-west-1.elb.amazonaws.com.</DNSName>
+            </AliasTarget>
+        </ResourceRecordSet>
+        <ResourceRecordSet>
+            <Name>example.com.</Name>
+            <Type>MX</Type>
+            <TTL>1440</TTL>
+            <ResourceRecords>
+                <ResourceRecord>
+                    <Value>10 ASPMX.L.GOOGLE.COM.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>20 ALT1.ASPMX.L.GOOGLE.COM.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>20 ALT2.ASPMX.L.GOOGLE.COM.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>30 ASPMX2.GOOGLEMAIL.COM.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>30 ASPMX3.GOOGLEMAIL.COM.</Value>
+                </ResourceRecord>
+            </ResourceRecords>
+        </ResourceRecordSet>
+        <ResourceRecordSet>
+            <Name>example.com.</Name>
+            <Type>NS</Type>
+            <TTL>172800</TTL>
+            <ResourceRecords>
+                <ResourceRecord>
+                    <Value>ns-686.awsdns-21.net.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>ns-368.awsdns-46.com.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>ns-1061.awsdns-04.org.</Value>
+                </ResourceRecord>
+                <ResourceRecord>
+                    <Value>ns-2022.awsdns-60.co.uk.</Value>
+                </ResourceRecord>
+            </ResourceRecords>
+        </ResourceRecordSet>
+    </ResourceRecordSets>
+    <IsTruncated>false</IsTruncated>
+    <MaxItems>100</MaxItems>
+</ListResourceRecordSetsResponse>

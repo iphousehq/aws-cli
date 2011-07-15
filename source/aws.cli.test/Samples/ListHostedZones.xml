@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<ListHostedZonesResponse xmlns="https://route53.amazonaws.com/doc/2010-10-01/">
+    <HostedZones>
+        <HostedZone>
+            <Id>/hostedzone/Q31PM55OG1BPVA</Id>
+            <Name>example.co.uk.</Name>
+            <CallerReference>CreateHostedZone, example.co.uk, Wed Jun 15 2011 11:04:26 GMT+0100 (GMT Daylight Time)</CallerReference>
+            <Config/>
+        </HostedZone>
+        <HostedZone>
+            <Id>/hostedzone/G1QF24WRM97A7P</Id>
+            <Name>example.com.</Name>
+            <CallerReference>CreateHostedZone, example.com, Fri Jun 17 2011 10:43:53 GMT+0100 (GMT Daylight Time)</CallerReference>
+            <Config/>
+        </HostedZone>
+        <HostedZone>
+            <Id>/hostedzone/H33PO0NDTHEZDG</Id>
+            <Name>amazon.com.</Name>
+            <CallerReference>CreateHostedZone, amazon.com., Fri Jun 17 2011 12:03:29 GMT+0100 (GMT Daylight Time)</CallerReference>
+            <Config/>
+        </HostedZone>
+    </HostedZones>
+    <IsTruncated>false</IsTruncated>
+    <MaxItems>100</MaxItems>
+</ListHostedZonesResponse>
