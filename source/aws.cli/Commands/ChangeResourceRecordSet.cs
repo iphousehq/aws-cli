@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using Amazon.Domain;
 using Amazon.Services;
 using Comsec.Sugar.Command;
@@ -81,7 +83,30 @@ namespace Amazon.Commands
                 change.ResourceRecords.Add(Route53Service.GetPublicIpAddress());
             }
 
+            if (parameters.Contains("--my-internal-ip"))
+            {
+                change.ResourceRecords.Clear();
+                change.ResourceRecords.Add(GetLocalIpAddress());
+            }
+
             Route53Service.ChangeResourceRecordSet(zone.Id, record, change);
+        }
+
+        public string GetLocalIpAddress()
+        {
+            var localIp = string.Empty;
+            
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    localIp = ip.ToString();
+                }
+            }
+
+            return localIp;
         }
 
         /// <summary>
