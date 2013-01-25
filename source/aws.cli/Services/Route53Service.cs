@@ -8,8 +8,8 @@ using System.Xml;
 using System.Xml.Linq;
 using Amazon.Domain;
 using Amazon.Mappers;
-using Comsec.Sugar;
-using Comsec.Sugar.Net;
+using Sugar;
+using Sugar.Net;
 
 namespace Amazon.Services
 {
@@ -54,6 +54,23 @@ namespace Amazon.Services
             Credentials = credentials;
         }
 
+        /// <summary>
+        /// Sets the authentication for the given request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        private void SetAuthentication(HttpRequest request)
+        {
+            // the canonical string is the date string 
+            string httpDate = GetRoute53Date();
+
+            request.Headers.Add("x-amz-date", httpDate);
+
+            // Both the following methods work! 
+            string authenticationSig = GetAwsr53Sha1AuthorizationValue(httpDate);
+
+            request.Headers.Add("X-Amzn-Authorization", authenticationSig);
+        }
+
         public HostedZoneDescriptor GetZone(string domain)
         {
             return ListHostedZones().FirstOrDefault(z => string.Compare(z.Name, domain, true) == 0);
@@ -67,7 +84,7 @@ namespace Amazon.Services
 
             SetAuthentication(request);
 
-            var response = HttpService.Get(request);
+            var response = HttpService.Download(request);
 
             if (response.Success)
             {
@@ -75,19 +92,6 @@ namespace Amazon.Services
             }
 
             return results;
-        }
-
-        private void SetAuthentication(HttpRequest request)
-        {
-            // the canonical string is the date string 
-            string httpDate = GetRoute53Date();
-
-            request.Headers.Add("x-amz-date", httpDate);
-
-            // Both the following methods work! 
-            string authenticationSig = GetAwsr53Sha1AuthorizationValue(httpDate);
-
-            request.Headers.Add("X-Amzn-Authorization", authenticationSig);
         }
 
         /// <summary>
@@ -103,7 +107,7 @@ namespace Amazon.Services
 
             SetAuthentication(request);
 
-            var response = HttpService.Get(request);
+            var response = HttpService.Download(request);
 
             if (response.Success)
             {
@@ -121,7 +125,7 @@ namespace Amazon.Services
 
             SetAuthentication(request);
 
-            var response = HttpService.Get(request);
+            var response = HttpService.Download(request);
 
             if (response.Success)
             {
@@ -130,6 +134,39 @@ namespace Amazon.Services
 
             return results;
         }
+
+        /// <summary>
+        /// Creates the resource record set.
+        /// </summary>
+        /// <param name="zoneId">The zone id.</param>
+        /// <param name="set">The set.</param>
+        public void CreateResourceRecordSet(string zoneId, ResourceRecordSet set)
+        {
+            XNamespace ns = "https://route53.amazonaws.com/doc/2011-05-05/";
+
+            var doc = new XElement(ns + "ChangeResourceRecordSetsRequest", 
+                      new XElement(ns + "ChangeBatch", 
+                      new XElement(ns + "Changes", set.ToChangeRequest("CREATE"))));
+
+            var xml = doc.ToString();
+
+            var request = new HttpRequest
+            {
+                Data = xml,
+                Url = string.Format("https://route53.amazonaws.com/2011-05-05/hostedzone/{0}/rrset", zoneId),
+                Verb = HttpVerb.Post
+            };
+
+            SetAuthentication(request);
+
+            var response = HttpService.Download(request);
+
+            if (!response.Success)
+            {
+                Console.WriteLine(response.Exception.Message);
+            }
+        }
+
 
         public void ChangeResourceRecordSet(string zoneId, ResourceRecordSet original, ResourceRecordSet change)
         {
@@ -147,10 +184,11 @@ namespace Amazon.Services
             var request = new HttpRequest();
             request.Data = xml;
             request.Url = "https://route53.amazonaws.com/2011-05-05/hostedzone/" + zoneId + "/rrset";
+            request.Verb = HttpVerb.Post;            
 
             SetAuthentication(request);
 
-            var response = HttpService.Post(request);
+            var response = HttpService.Download(request);
 
             if (!response.Success)
             {

@@ -1,15 +1,22 @@
 ﻿using System;
 using Amazon.Services;
-using Comsec.Sugar;
-using Comsec.Sugar.Command;
+using Sugar;
+using Sugar.Command;
 
 namespace Amazon.Commands
 {
     /// <summary>
     /// Lists all the hosted zones
     /// </summary>
-    public class ListResourceRecordSets : ICommand
+    public class ListResourceRecordSets : BoundCommand<ListResourceRecordSets.Options>
     {
+        [Flag("list")]
+        public class Options
+        {
+            [Parameter("zone", Required = true)]
+            public string Zone { get; set; }
+        }
+
         /// <summary>
         /// Gets or sets the route53 service.
         /// </summary>
@@ -27,65 +34,37 @@ namespace Amazon.Commands
         }
 
         /// <summary>
-        /// Determines whether this instance can execute the specified parameters.
+        /// Executes the specified options.
         /// </summary>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>
-        ///   <c>true</c> if this instance can execute the specified parameters; otherwise, <c>false</c>.
-        /// </returns>
-        public bool CanExecute(Parameters parameters)
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public override int Execute(Options options)
         {
-            return parameters.Contains("--list") && !string.IsNullOrEmpty(parameters.AsString("--list"));
-        }
-
-        /// <summary>
-        /// Executes the specified parameters.
-        /// </summary>
-        /// <param name="parameters">The parameters.</param>
-        public void Execute(Parameters parameters)
-        {
-            var domain = parameters.AsString("--list");
-
             var zones = Route53Service.ListHostedZones();
 
             foreach (var zone in zones)
             {
-                if (string.Compare(zone.Name, domain, true) != 0) continue;
+                // Choose correct zone
+                if (String.Compare(zone.Name, options.Zone, StringComparison.OrdinalIgnoreCase) != 0) continue;
 
                 var records = Route53Service.ListResourceRecordSets(zone.Id);
 
-                var table = new TextTable(4);
-
-                table.AddRow("Name", "Type", "TTL", "Value");
-                table.AddRow("=");
+                var table = new TextTable("Name", "Type", "TTL", "Value");
+                table.AddSeperator();
 
                 foreach (var record in records)
                 {
                     table.AddRow(record.Name, record.Type, record.TTL, record.ResourceRecords.ToCsv(", "));
                 }
-               
+
                 Console.Write(table.ToString());
 
-                return;
+                return Success();
             }
 
-            Console.WriteLine("Unable to load record sets for {0}", domain);
-        }
+            Console.WriteLine("Unable to load record sets for {0}", options.Zone);
 
-        /// <summary>
-        /// Gets the description.
-        /// </summary>
-        public string Description
-        {
-            get { return "--list   Returns a list of zones hosted within Route 53"; }
-        }
-
-        /// <summary>
-        /// Gets the help.
-        /// </summary>
-        public string Help
-        {
-            get { return "--list   Returns a list of zones hosted within Route 53"; }
+            return 1;
         }
     }
 }

@@ -81,15 +81,14 @@ namespace Amazon.Domain
             XNamespace ns = "https://route53.amazonaws.com/doc/2011-05-05/";
 
             return new XElement(ns + "Change",
-                            new XElement(ns + "Action", action),
-                            new XElement(ns + "ResourceRecordSet",
-                            new XElement(ns + "Name", Name + "."),
-                            new XElement(ns + "Type", Type.ToString()),
-                            new XElement(ns + "TTL", TTL),
-                            new XElement(ns + "ResourceRecords",
-                            new XElement(ns + "ResourceRecord", 
-                                new XElement(ns + "Value", ResourceRecords[0])
-                    ))));
+                   new XElement(ns + "Action", action),
+                   new XElement(ns + "ResourceRecordSet",
+                   new XElement(ns + "Name", Name + "."),
+                   new XElement(ns + "Type", Type.ToString()),
+                   new XElement(ns + "TTL", TTL),
+                   new XElement(ns + "ResourceRecords",
+                   new XElement(ns + "ResourceRecord", 
+                   new XElement(ns + "Value", ResourceRecords[0])))));
         }
     }
 }

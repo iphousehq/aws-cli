@@ -34,12 +34,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Amazon.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Comsec.Sugar">
-      <HintPath>..\..\references\sugar\Comsec.Sugar.dll</HintPath>
-    </Reference>
-    <Reference Include="HtmlAgilityPack">
-      <HintPath>..\..\references\sugar\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="Sugar">
+      <HintPath>..\..\references\sugar\Sugar.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -1,14 +1,18 @@
 ﻿using System;
 using Amazon.Services;
-using Comsec.Sugar.Command;
+using Sugar;
+using Sugar.Command;
 
 namespace Amazon.Commands
 {
     /// <summary>
     /// Lists all the hosted zones
     /// </summary>
-    public class ListHostedZones : ICommand
+    public class ListHostedZones : BoundCommand<ListHostedZones.Options>
     {
+        [Flag("list", "zones")]
+        public class Options {}
+
         /// <summary>
         /// Gets or sets the route53 service.
         /// </summary>
@@ -26,45 +30,25 @@ namespace Amazon.Commands
         }
 
         /// <summary>
-        /// Determines whether this instance can execute the specified parameters.
-        /// </summary>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>
-        ///   <c>true</c> if this instance can execute the specified parameters; otherwise, <c>false</c>.
-        /// </returns>
-        public bool CanExecute(Parameters parameters)
-        {
-            return parameters.Contains("--list") && string.IsNullOrEmpty(parameters.AsString("--list"));
-        }
-
-        /// <summary>
         /// Executes the specified parameters.
         /// </summary>
-        /// <param name="parameters">The parameters.</param>
-        public void Execute(Parameters parameters)
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        public override int Execute(Options options)
         {
             var zones = Route53Service.ListHostedZones();
 
+            var table = new TextTable("Id", "Zone");
+            table.AddSeperator();
+
             foreach (var zone in zones)
             {
-                Console.WriteLine(zone.Name + " - " + zone.Id);
+                table.AddRow(zone.Id, zone.Name);
             }
-        }
 
-        /// <summary>
-        /// Gets the description.
-        /// </summary>
-        public string Description
-        {
-            get { return "--list   Returns a list of zones hosted within Route 53"; }
-        }
+            Console.Write(table.ToString());
 
-        /// <summary>
-        /// Gets the help.
-        /// </summary>
-        public string Help
-        {
-            get { return "--list   Returns a list of zones hosted within Route 53"; }
+            return Success();
         }
     }
 }

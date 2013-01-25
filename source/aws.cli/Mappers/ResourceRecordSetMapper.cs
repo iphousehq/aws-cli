@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Amazon.Domain;
-using Comsec.Sugar;
-using Comsec.Sugar.Xml;
+using Sugar;
+using Sugar.Xml;
 
 namespace Amazon.Mappers
 {

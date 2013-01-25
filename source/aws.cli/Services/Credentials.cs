@@ -1,5 +1,5 @@
 ﻿using System;
-using Comsec.Sugar.Command;
+using Sugar.Command;
 
 namespace Amazon.Services
 {

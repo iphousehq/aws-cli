@@ -1,6 +1,6 @@
 ﻿using System;
 using Amazon.Services;
-using Comsec.Sugar.Command;
+using Sugar.Command;
 
 namespace Amazon.Commands
 {
@@ -41,7 +41,7 @@ namespace Amazon.Commands
         /// Executes the specified parameters.
         /// </summary>
         /// <param name="parameters">The parameters.</param>
-        public void Execute(Parameters parameters)
+        public int Execute(Parameters parameters)
         {
             var id = parameters.AsString("--get");
 
@@ -50,7 +50,7 @@ namespace Amazon.Commands
             if (zone == null)
             {
                 Console.WriteLine("Couldn't find the zone with the id {0}.", id);
-                return;
+                return 0;
             }
 
             Console.WriteLine("Name        : {0}", zone.Name);
@@ -61,6 +61,8 @@ namespace Amazon.Commands
             {
                 Console.WriteLine("Nameserver  : {0}", nameserver);                
             }
+
+            return 0;
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 using Amazon.Commands;
-using Comsec.Sugar.Command;
+using Sugar.Command;
 
 namespace Amazon
 {
@@ -15,6 +15,11 @@ namespace Amazon
             Commands.Add(new GetHostedZone());
             Commands.Add(new ListResourceRecordSets());
             Commands.Add(new ChangeResourceRecordSets());
-        }        
+        }
+
+        public override int Default()
+        {
+            return 0;
+        }
     }
 }

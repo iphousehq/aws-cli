@@ -170,7 +170,7 @@ namespace Amazon.Services
                 string[] param = requestParams[i].Split(sep, 2);
                 for (int j = 0; j <= param.Length - 1; j++)
                 {
-                    param[j] = HttpUtility.UrlDecode(param[j], System.Text.Encoding.UTF8);
+                    param[j] = HttpUtility.UrlDecode(param[j], Encoding.UTF8);
                 }
                 switch (param.Length)
                 {
@@ -188,10 +188,9 @@ namespace Amazon.Services
                                     map[param[0]] = "";
                                 }
                             }
-                            break; // TODO: might not be correct. Was : Exit Select
                         }
-
                         break;
+
                     case 2:
                         if (true)
                         {
@@ -200,9 +199,6 @@ namespace Amazon.Services
                                 map[param[0]] = param[1];
                             }
                         }
-
-                        break; // TODO: might not be correct. Was : Exit Select
-
                         break;
                 }
             }
