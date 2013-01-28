@@ -15,14 +15,23 @@ namespace Amazon.Services
         {
             get
             {
-                var arguments = new Parameters(Environment.CommandLine);
+                string accessKeyId;
 
-                if (arguments.Contains("-o"))
+                if (Parameters.Current.Contains("o"))
                 {
-                    return arguments.AsString("-o");
+                    accessKeyId = Parameters.Current.AsString("o");
+                }
+                else
+                {
+                    accessKeyId = Environment.GetEnvironmentVariable("EC2_ACCESS_KEY");
                 }
 
-                return Environment.GetEnvironmentVariable("EC2_ACCESS_KEY");
+                if (string.IsNullOrEmpty(accessKeyId))
+                {
+                    accessKeyId = string.Empty;
+                }
+
+                return accessKeyId;
             }
         }
 
@@ -33,14 +42,37 @@ namespace Amazon.Services
         {
             get
             {
-                var arguments = new Parameters(Environment.CommandLine);
+                string secretAccessKey;
 
-                if (arguments.Contains("-w"))
+                if (Parameters.Current.Contains("w"))
                 {
-                    return arguments.AsString("-w");
+                    secretAccessKey = Parameters.Current.AsString("w");
+                }
+                else
+                {
+                    secretAccessKey = Environment.GetEnvironmentVariable("EC2_SECRET_ACCESS_KEY");
                 }
 
-                return Environment.GetEnvironmentVariable("EC2_SECRET_ACCESS_KEY");
+                if (string.IsNullOrEmpty(secretAccessKey))
+                {
+                    secretAccessKey = string.Empty;
+                }
+
+                return secretAccessKey;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether these <see cref="ICredentials" /> have been set.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if set; otherwise, <c>false</c>.
+        /// </value>
+        public bool Set
+        {
+            get
+            {
+                return !(string.IsNullOrEmpty(AccessKeyId) && string.IsNullOrEmpty(SecretAccessKey));
             }
         }
     }
