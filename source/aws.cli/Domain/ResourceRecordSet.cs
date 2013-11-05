@@ -78,7 +78,7 @@ namespace Amazon.Domain
 
         public XElement ToChangeRequest(string action)
         {
-            XNamespace ns = "https://route53.amazonaws.com/doc/2011-05-05/";
+            XNamespace ns = "https://route53.amazonaws.com/doc/2012-12-12/";
 
             return new XElement(ns + "Change",
                    new XElement(ns + "Action", action),

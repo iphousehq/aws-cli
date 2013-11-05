@@ -40,9 +40,6 @@
     <StartupObject>Amazon.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AWSSDK">
-      <HintPath>..\..\references\aws\AWSSDK.dll</HintPath>
-    </Reference>
     <Reference Include="Sugar">
       <HintPath>..\..\references\sugar\Sugar.dll</HintPath>
     </Reference>

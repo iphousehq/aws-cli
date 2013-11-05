@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using Amazon.Domain;
 using Amazon.Mappers;
@@ -80,7 +77,7 @@ namespace Amazon.Services
         {
             var results = new List<HostedZoneDescriptor>();
 
-            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2011-05-05/hostedzone" };
+            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2012-12-12/hostedzone" };
 
             SetAuthentication(request);
 
@@ -103,7 +100,7 @@ namespace Amazon.Services
         {
             HostedZone zone = null;
 
-            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2011-05-05/hostedzone/" + zoneId };
+            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2012-12-12/hostedzone/" + zoneId };
 
             SetAuthentication(request);
 
@@ -121,7 +118,7 @@ namespace Amazon.Services
         {
             var results = new List<ResourceRecordSet>();
 
-            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2011-05-05/hostedzone/" + zoneId + "/rrset?maxitems=100", Timeout = 60000 };
+            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2012-12-12/hostedzone/" + zoneId + "/rrset?maxitems=100", Timeout = 60000 };
 
             SetAuthentication(request);
 
@@ -142,7 +139,7 @@ namespace Amazon.Services
         /// <param name="set">The set.</param>
         public void CreateResourceRecordSet(string zoneId, ResourceRecordSet set)
         {
-            XNamespace ns = "https://route53.amazonaws.com/doc/2011-05-05/";
+            XNamespace ns = "https://route53.amazonaws.com/doc/2012-12-12/";
 
             var doc = new XElement(ns + "ChangeResourceRecordSetsRequest", 
                       new XElement(ns + "ChangeBatch", 
@@ -153,7 +150,7 @@ namespace Amazon.Services
             var request = new HttpRequest
             {
                 Data = xml,
-                Url = string.Format("https://route53.amazonaws.com/2011-05-05/hostedzone/{0}/rrset", zoneId),
+                Url = string.Format("https://route53.amazonaws.com/2012-12-12/hostedzone/{0}/rrset", zoneId),
                 Verb = HttpVerb.Post
             };
 
@@ -170,7 +167,7 @@ namespace Amazon.Services
 
         public void ChangeResourceRecordSet(string zoneId, ResourceRecordSet original, ResourceRecordSet change)
         {
-            XNamespace ns = "https://route53.amazonaws.com/doc/2011-05-05/";
+            XNamespace ns = "https://route53.amazonaws.com/doc/2012-12-12/";
 
             var doc = new XElement(ns + "ChangeResourceRecordSetsRequest",
                                    new XElement(ns + "ChangeBatch",
@@ -183,7 +180,7 @@ namespace Amazon.Services
 
             var request = new HttpRequest();
             request.Data = xml;
-            request.Url = "https://route53.amazonaws.com/2011-05-05/hostedzone/" + zoneId + "/rrset";
+            request.Url = "https://route53.amazonaws.com/2012-12-12/hostedzone/" + zoneId + "/rrset";
             request.Verb = HttpVerb.Post;            
 
             SetAuthentication(request);
@@ -223,11 +220,10 @@ namespace Amazon.Services
         {
             if (string.IsNullOrEmpty(date))
             {
-                string url = "https://route53.amazonaws.com/date";
-                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                var url = "https://route53.amazonaws.com/date";
+                var request = WebRequest.Create(url) as HttpWebRequest;
                 request.Method = "GET";
-                HttpWebResponse response;
-                response = request.GetResponse() as HttpWebResponse;
+                var response = request.GetResponse() as HttpWebResponse;
                 date = response.Headers["Date"];
             }
 
