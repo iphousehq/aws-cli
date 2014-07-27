@@ -8,7 +8,7 @@
     <ProjectGuid>{B5D67B1B-4430-48F5-BFDD-D64BAFCA9B1C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Amazon</RootNamespace>
+    <RootNamespace>Aws</RootNamespace>
     <AssemblyName>aws.cli.test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -35,37 +35,40 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AWSSDK, Version=2.2.1.0, Culture=neutral, PublicKeyToken=9f476d3089b52be3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AWSSDK.2.2.1.0\lib\net45\AWSSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.2.1402.2112\lib\net40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\references\nunit\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Sugar, Version=1.0.0.29892, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\references\sugar\Sugar.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mappers\HostedZoneMapperTest.cs" />
-    <Compile Include="Mappers\HostedZoneDescriptorMapperTest.cs" />
-    <Compile Include="Mappers\ResourceRecordSetMapperTest.cs" />
+    <Compile Include="Commands\ChangeResourceRecordSetsTest.cs" />
+    <Compile Include="Commands\ListHostedZonesTest.cs" />
+    <Compile Include="Commands\ListResourceRecordSetsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Samples\GetHostedZone.xml" />
-    <Content Include="Samples\ListHostedZones.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Samples\ListResourceRecordSets.xml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\aws.cli\aws.cli.csproj">
       <Project>{c6c242f1-a2ae-4641-96e8-04a6c3b6d1f4}</Project>
       <Name>aws.cli</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

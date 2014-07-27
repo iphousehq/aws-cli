@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
-using System.Xml.Linq;
-using Amazon.Domain;
-using Amazon.Mappers;
-using Sugar;
+using System.Net.Sockets;
+using Amazon;
+using Amazon.Route53;
+using Amazon.Route53.Model;
+using Amazon.Runtime;
+using Aws.Interfaces.Services;
 using Sugar.Net;
 
-namespace Amazon.Services
+namespace Aws.Services
 {
     /// <summary>
-    /// Encapsulates the Amazon Route 53 DNS service.
+    /// Service to wrap call to the Amazon Route 53 API.
     /// </summary>
-    public class Route53Service
+    public class Route53Service : IRoute53Service
     {
+        #region Depedencies
+
         /// <summary>
         /// Gets or sets the HTTP service.
         /// </summary>
         /// <value>
         /// The HTTP service.
         /// </value>
-        public IHttpService HttpService { get; set; }
+        public HttpService HttpService { get; set; } 
 
-        /// <summary>
-        /// Gets or sets the credentials.
-        /// </summary>
-        /// <value>
-        /// The credentials.
-        /// </value>
-        public ICredentials Credentials { get; set; }
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Route53Service"/> class.
@@ -37,197 +36,197 @@ namespace Amazon.Services
         public Route53Service()
         {
             HttpService = new HttpService();
-            Credentials = new Credentials();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Route53Service"/> class.
+        /// Gets the public ip address from the instace meta data HTTP API.
         /// </summary>
-        /// <param name="httpService">The HTTP service.</param>
-        /// <param name="credentials">The credentials.</param>
-        public Route53Service(IHttpService httpService, ICredentials credentials)
-        {
-            HttpService = httpService;
-            Credentials = credentials;
-        }
-
-        /// <summary>
-        /// Sets the authentication for the given request.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        private void SetAuthentication(HttpRequest request)
-        {
-            // the canonical string is the date string 
-            string httpDate = GetRoute53Date();
-
-            request.Headers.Add("x-amz-date", httpDate);
-
-            // Both the following methods work! 
-            string authenticationSig = GetAwsr53Sha1AuthorizationValue(httpDate);
-
-            request.Headers.Add("X-Amzn-Authorization", authenticationSig);
-        }
-
-        public HostedZoneDescriptor GetZone(string domain)
-        {
-            return ListHostedZones().FirstOrDefault(z => string.Compare(z.Name, domain, true) == 0);
-        }
-
-        public IList<HostedZoneDescriptor> ListHostedZones()
-        {
-            var results = new List<HostedZoneDescriptor>();
-
-            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2012-12-12/hostedzone" };
-
-            SetAuthentication(request);
-
-            var response = HttpService.Download(request);
-
-            if (response.Success)
-            {
-                results.AddRange(new HostedZoneDescriptorMapper().Map(response.ToString()));
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Gets the hosted zone.
-        /// </summary>
-        /// <param name="zoneId">The zone id.</param>
         /// <returns></returns>
-        public HostedZone GetHostedZone(string zoneId)
+        /// <exception cref="System.ApplicationException">Unable to determine public IP address from: http://instance-data/latest/meta-data/public-ipv4</exception>
+        public string GetPublicIpAddress()
         {
-            HostedZone zone = null;
+            // This only works if you run this utility on an EC2 instance
+            var html = HttpService.Get("http://instance-data/latest/meta-data/public-ipv4");
 
-            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2012-12-12/hostedzone/" + zoneId };
-
-            SetAuthentication(request);
-
-            var response = HttpService.Download(request);
-
-            if (response.Success)
+            if (html.Success)
             {
-                zone = new HostedZoneMapper().Map(response.ToString());
+                return html.ToString();
             }
 
-            return zone;
+            throw new ApplicationException("Unable to determine public IP address from: http://instance-data/latest/meta-data/public-ipv4");
         }
 
-        public IList<ResourceRecordSet> ListResourceRecordSets(string zoneId)
+        /// <summary>
+        /// Gets the local ip address.
+        /// </summary>
+        /// <returns></returns>
+        public string GetLocalIpAddress()
         {
-            var results = new List<ResourceRecordSet>();
+            var localIp = string.Empty;
 
-            var request = new HttpRequest { Url = "https://route53.amazonaws.com/2012-12-12/hostedzone/" + zoneId + "/rrset?maxitems=100", Timeout = 60000 };
+            var host = Dns.GetHostEntry(Dns.GetHostName());
 
-            SetAuthentication(request);
-
-            var response = HttpService.Download(request);
-
-            if (response.Success)
+            foreach (var ip in host.AddressList)
             {
-                results.AddRange(new ResourceRecordSetMapper().Map(response.ToString()));
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    localIp = ip.ToString();
+                }
             }
 
-            return results;
+            return localIp;
+        }
+
+        /// <summary>
+        /// Converts a region string to a region end point.
+        /// </summary>
+        /// <param name="region">The region (e.g. eu-west-1).</param>
+        /// <returns></returns>
+        public RegionEndpoint ToRegionEndPoint(string region)
+        {
+            if (string.IsNullOrEmpty(region))
+            {
+                region = ConfigurationManager.AppSettings["AWSDefaultRegionEndPoint"];
+            }
+
+            return RegionEndpoint.GetBySystemName(region);
+        }
+
+        /// <summary>
+        /// Initialises the route53 client.
+        /// </summary>
+        /// <param name="region">The region.</param>
+        /// <returns></returns>
+        public AmazonRoute53Client InitialiseRoute53Client(RegionEndpoint region)
+        {
+            var credentials = new StoredProfileAWSCredentials();
+
+            return new AmazonRoute53Client(credentials, region);
+        }
+
+        /// <summary>
+        /// Lists the hosted zones.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <returns></returns>
+        public List<HostedZone> ListHostedZones(RegionEndpoint endpoint)
+        {
+            var client = InitialiseRoute53Client(endpoint);
+
+            var request = new ListHostedZonesRequest();
+
+            var response = client.ListHostedZones(request);
+
+            return response.HostedZones;
+        }
+
+        /// <summary>
+        /// Gets the zone.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="domainName">Name of the domain.</param>
+        /// <returns></returns>
+        public HostedZone GetZone(RegionEndpoint endpoint, string domainName)
+        {
+            var request = new ListHostedZonesRequest();
+
+            var client = InitialiseRoute53Client(endpoint);
+
+            var response = client.ListHostedZones(request);
+
+            return response.HostedZones
+                           .FirstOrDefault(
+                               z => z.Name.StartsWith(domainName, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// Lists the resource record sets in the specified hosted zone.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="hostedZoneId">The hosted zone identifier.</param>
+        /// <returns></returns>
+        public List<ResourceRecordSet> ListResourceRecordSets(RegionEndpoint endpoint, string hostedZoneId)
+        {
+            var request = new ListResourceRecordSetsRequest
+                          {
+                              HostedZoneId = hostedZoneId
+                          };
+
+            var client = InitialiseRoute53Client(endpoint);
+
+            var response = client.ListResourceRecordSets(request);
+
+            return response.ResourceRecordSets;
         }
 
         /// <summary>
         /// Creates the resource record set.
         /// </summary>
-        /// <param name="zoneId">The zone id.</param>
-        /// <param name="set">The set.</param>
-        public void CreateResourceRecordSet(string zoneId, ResourceRecordSet set)
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="hostedZoneId">The hosted zone identifier.</param>
+        /// <param name="newRecord">The new record.</param>
+        /// <returns></returns>
+        public ChangeInfo CreateResourceRecordSet(RegionEndpoint endpoint, string hostedZoneId, ResourceRecordSet newRecord)
         {
-            XNamespace ns = "https://route53.amazonaws.com/doc/2012-12-12/";
+            var changes = new List<Change>
+                          {
+                              new Change
+                              {
+                                  Action = ChangeAction.CREATE,
+                                  ResourceRecordSet = newRecord
+                              }
+                          };
 
-            var doc = new XElement(ns + "ChangeResourceRecordSetsRequest", 
-                      new XElement(ns + "ChangeBatch", 
-                      new XElement(ns + "Changes", set.ToChangeRequest("CREATE"))));
-
-            var xml = doc.ToString();
-
-            var request = new HttpRequest
-            {
-                Data = xml,
-                Url = string.Format("https://route53.amazonaws.com/2012-12-12/hostedzone/{0}/rrset", zoneId),
-                Verb = HttpVerb.Post
-            };
-
-            SetAuthentication(request);
-
-            var response = HttpService.Download(request);
-
-            if (!response.Success)
-            {
-                Console.WriteLine(response.Exception.Message);
-            }
+            return SubmitChangeResourceRecordSets(endpoint, hostedZoneId, changes);
         }
 
-
-        public void ChangeResourceRecordSet(string zoneId, ResourceRecordSet original, ResourceRecordSet change)
+        /// <summary>
+        /// Replaces the resource record set.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="hostedZoneId">The hosted zone identifier.</param>
+        /// <param name="oldRecord">The old record.</param>
+        /// <param name="newRecord">The new record.</param>
+        /// <returns></returns>
+        public ChangeInfo ReplaceResourceRecordSet(RegionEndpoint endpoint, string hostedZoneId, ResourceRecordSet oldRecord, ResourceRecordSet newRecord)
         {
-            XNamespace ns = "https://route53.amazonaws.com/doc/2012-12-12/";
+            var changes = new List<Change>
+                          {
+                              new Change
+                              {
+                                  Action = ChangeAction.DELETE,
+                                  ResourceRecordSet = oldRecord
+                              },
+                              new Change
+                              {
+                                  Action = ChangeAction.CREATE,
+                                  ResourceRecordSet = newRecord
+                              }
+                          };
 
-            var doc = new XElement(ns + "ChangeResourceRecordSetsRequest",
-                                   new XElement(ns + "ChangeBatch",
-                                                new XElement(ns + "Changes", 
-                                                    original.ToChangeRequest("DELETE"),
-                                                    change.ToChangeRequest("CREATE")
-                                                    )));
-
-            var xml = doc.ToString();
-
-            var request = new HttpRequest();
-            request.Data = xml;
-            request.Url = "https://route53.amazonaws.com/2012-12-12/hostedzone/" + zoneId + "/rrset";
-            request.Verb = HttpVerb.Post;            
-
-            SetAuthentication(request);
-
-            var response = HttpService.Download(request);
-
-            if (!response.Success)
-            {
-                Console.WriteLine(response.Exception.Message);
-            }
+            return SubmitChangeResourceRecordSets(endpoint, hostedZoneId, changes);
         }
 
-        public string GetPublicIpAddress()
+        /// <summary>
+        /// Submits the change request.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="hostedZoneId">The hosted zone identifier.</param>
+        /// <param name="changes">The changes.</param>
+        /// <returns></returns>
+        private ChangeInfo SubmitChangeResourceRecordSets(RegionEndpoint endpoint, string hostedZoneId, List<Change> changes)
         {
-            var html = HttpService.Get("http://checkip.dyndns.org/");
+            var request = new ChangeResourceRecordSetsRequest
+                          {
+                              HostedZoneId = hostedZoneId,
+                              ChangeBatch = new ChangeBatch {Changes = changes}
+                          };
 
-            if (html.Success)
-            {
-                return html.ToString().Keep("1234567890.");
-            }
+            var client = InitialiseRoute53Client(endpoint);
 
-            throw new ApplicationException("Unable to determine public IP address");
-        }
+            var response = client.ChangeResourceRecordSets(request);
 
-        public string GetAwsr53Sha1AuthorizationValue(string date)
-        {
-            var signer = new System.Security.Cryptography.HMACSHA1(System.Text.Encoding.UTF8.GetBytes(Credentials.SecretAccessKey));
-
-            string value = Convert.ToBase64String(signer.ComputeHash(System.Text.Encoding.UTF8.GetBytes(date)));
-
-            return "AWS3-HTTPS AWSAccessKeyId=" + Uri.EscapeDataString(Credentials.AccessKeyId) + ",Algorithm=HmacSHA1,Signature=" + value;
-        }
-
-        private static string date;
-
-        public static string GetRoute53Date()
-        {
-            if (string.IsNullOrEmpty(date))
-            {
-                var url = "https://route53.amazonaws.com/date";
-                var request = WebRequest.Create(url) as HttpWebRequest;
-                request.Method = "GET";
-                var response = request.GetResponse() as HttpWebResponse;
-                date = response.Headers["Date"];
-            }
-
-            return date;
+            return response.ChangeInfo;
         }
     }
 }

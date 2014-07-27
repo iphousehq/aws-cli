@@ -1,17 +1,24 @@
 ﻿using System;
-using Amazon.Services;
+using Aws.Interfaces.Services;
+using Aws.Services;
 using Sugar;
 using Sugar.Command;
 
-namespace Amazon.Commands
+namespace Aws.Commands
 {
     /// <summary>
-    /// Lists all the hosted zones
+    /// Command to list all available hosted zones in Route 53.
     /// </summary>
     public class ListHostedZones : BoundCommand<ListHostedZones.Options>
     {
         [Flag("list", "zones")]
-        public class Options {}
+        public class Options
+        {
+            [Parameter("region")]
+            public string Region { get; set; }
+        }
+
+        #region Dependencies
 
         /// <summary>
         /// Gets or sets the route53 service.
@@ -19,7 +26,9 @@ namespace Amazon.Commands
         /// <value>
         /// The route53 service.
         /// </value>
-        public Route53Service Route53Service { get; set; }
+        public IRoute53Service Route53Service { get; set; } 
+
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ListHostedZones"/> class.
@@ -30,13 +39,16 @@ namespace Amazon.Commands
         }
 
         /// <summary>
-        /// Executes the specified parameters.
+        /// Executes the specified options.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override int Execute(Options options)
         {
-            var zones = Route53Service.ListHostedZones();
+            var endPoint = Route53Service.ToRegionEndPoint(options.Region);
+
+            var zones = Route53Service.ListHostedZones(endPoint);
 
             var table = new TextTable("Id", "Zone");
             table.AddSeperator();
@@ -48,7 +60,7 @@ namespace Amazon.Commands
 
             Console.Write(table.ToString());
 
-            return Success();
+            return (int) ExitCode.Success;
         }
     }
 }

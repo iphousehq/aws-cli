@@ -1,8 +1,8 @@
 ﻿using System;
-using Amazon.Commands;
+using Aws.Commands;
 using Sugar.Command;
 
-namespace Amazon
+namespace Aws
 {
     /// <summary>
     /// Amazon Web Service Console
@@ -12,7 +12,6 @@ namespace Amazon
         public AwsConsole()
         {
             Commands.Add(new ListHostedZones());
-            Commands.Add(new GetHostedZone());
             Commands.Add(new ListResourceRecordSets());
             Commands.Add(new ChangeResourceRecordSets());
         }
@@ -23,20 +22,25 @@ namespace Amazon
         /// <returns></returns>
         public override int Default()
         {
-            Console.WriteLine("Route 53 Console Application");
             Console.WriteLine();
-            Console.WriteLine("Usage:");
+            Console.WriteLine(" AWS CLI Route 53 companion tool");
+            Console.WriteLine(" This utility lets you create (or update) A records");
+            Console.WriteLine();
+            Console.WriteLine(" Documentation: https://github.com/comsechq/aws-cli");
+            Console.WriteLine();
+            Console.WriteLine(" Usage:");
             Console.WriteLine();
             Console.WriteLine("  aws.exe [options]");
             Console.WriteLine();
-            Console.WriteLine("Options:");
+            Console.WriteLine(" Options:");
             Console.WriteLine();
-            Console.WriteLine("  -list -zones               Lists all registered zones");
-            Console.WriteLine("  -list -zone [domain]       Lists contents of the specified zone");
-            Console.WriteLine("  -set -host [subdomain] [-ip [ip]|-my-ip|-my-internal-ip]] -ttl [ttl]");
-            Console.WriteLine("                             Lists contents of the specified zone");
+            Console.WriteLine("  [-region [value]] -list -zones");
+            Console.WriteLine("  [-region [value]] -list -zone-id value");
+            Console.WriteLine("  [-region [value]] -set -host [subdomain] [-ip [value]|-public-ip|-local-ip]] -ttl [ttl]");
+            Console.WriteLine();
+            Console.WriteLine(" Disclaimer: Use at your own risk.");
 
-            return 0;
+            return (int)ExitCode.NoCommand;
         }
     }
 }

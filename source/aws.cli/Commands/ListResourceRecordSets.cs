@@ -1,21 +1,28 @@
 ﻿using System;
-using Amazon.Services;
+using System.Linq;
+using Aws.Interfaces.Services;
+using Aws.Services;
 using Sugar;
 using Sugar.Command;
 
-namespace Amazon.Commands
+namespace Aws.Commands
 {
     /// <summary>
-    /// Lists all the hosted zones
+    /// Lists all the records in the given hosted zone
     /// </summary>
     public class ListResourceRecordSets : BoundCommand<ListResourceRecordSets.Options>
     {
         [Flag("list")]
         public class Options
         {
-            [Parameter("zone", Required = true)]
-            public string Zone { get; set; }
+            [Parameter("region")]
+            public string Region { get; set; }
+
+            [Parameter("zone-id", Required = true)]
+            public string ZoneId { get; set; }
         }
+
+        #region Dependencies
 
         /// <summary>
         /// Gets or sets the route53 service.
@@ -23,10 +30,12 @@ namespace Amazon.Commands
         /// <value>
         /// The route53 service.
         /// </value>
-        public Route53Service Route53Service { get; set; }
+        public IRoute53Service Route53Service { get; set; }
+
+        #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ListHostedZones"/> class.
+        /// Initializes a new instance of the <see cref="ListResourceRecordSets"/> class.
         /// </summary>
         public ListResourceRecordSets()
         {
@@ -40,15 +49,12 @@ namespace Amazon.Commands
         /// <returns></returns>
         public override int Execute(Options options)
         {
-            var zones = Route53Service.ListHostedZones();
+            var endPoint = Route53Service.ToRegionEndPoint(options.Region);
 
-            foreach (var zone in zones)
+            var records = Route53Service.ListResourceRecordSets(endPoint, options.ZoneId);
+
+            if (records != null && records.Any())
             {
-                // Choose correct zone
-                if (String.Compare(zone.Name, options.Zone, StringComparison.OrdinalIgnoreCase) != 0) continue;
-
-                var records = Route53Service.ListResourceRecordSets(zone.Id);
-
                 var table = new TextTable("Name", "Type", "TTL", "Value");
                 table.AddSeperator();
 
@@ -62,9 +68,9 @@ namespace Amazon.Commands
                 return Success();
             }
 
-            Console.WriteLine("Unable to load record sets for {0}", options.Zone);
+            Console.WriteLine("Unable to load record sets for {0}", options.ZoneId);
 
-            return 1;
+            return (int)ExitCode.Success;
         }
     }
 }
