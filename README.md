@@ -32,14 +32,10 @@ aws.exe [options]
 
 All examples below create a record or edit a matching one.
 
-- Set record to a given IP address: 
-    `aws -set -host sub.domain.com -ip 10.1.2.3`
-- Set record to the instance's public IP and also specify the TTL value: 
-    `aws -set -host sub.domain.com -ip  my-ip -ttl 300`
-- Set record to local IP: 
-    `aws -set -host internal.sub.domain.com -ip  my-internal-ip -ttl 300`
-- Update TTL on a given record: 
-    `aws -set -host internal.sub.domain.com -ttl 60`
+- Set record to a given IP address: `aws -set -host sub.domain.com -ip 10.1.2.3`
+- Set record to the instance's public IP and also specify the TTL value: `aws -set -host sub.domain.com -public-ip -ttl 300`
+- Set record to local IP: `aws -set -host internal.sub.domain.com -local-ip -ttl 300`
+- Update the TTL of an existing record: `aws -set -host internal.sub.domain.com -ttl 60`
 
 ### Download & Install:
 
