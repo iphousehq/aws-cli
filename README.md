@@ -6,17 +6,17 @@ aws.exe leverages the AWS SDK for .NET to create or update A records on Route 53
 
 If you call this tool when a windows instance starts you effectively get a DynDNS ersatz!
 
-###Configuration:
+### Configuration:
 
 This tool tries to load the default AWS credentials set for example by running `aws configure` after having installed the official [aws cli](http://aws.amazon.com/cli/).
 
 You can change the default profile name and/or location as well as the default region in the app.config file.
 
-###Usage:
+### Usage:
 
 aws.exe [options]
             
-####Options:
+#### Options:
     
     [-region [region]] -list -zones
     [-region [region]] -list -zone zone
@@ -41,7 +41,13 @@ All examples below create a record or edit a matching one.
 - Update TTL on a given record: 
     `aws -set -host internal.sub.domain.com -ttl 60`
 
+### Download & Install:
+
+Find the [latest release](https://github.com/comsechq/aws-cli/releases).
+Extract the zip in a folder.
+Run the command from the command line prompt.
+
 ### Notes
 
-1. This tool relies on queries http://instance-data/latest/meta-data/public-ipv4 to obtain the public IP address of the instance it runs on. If do not execute this tool on a Amazon EC2 instance an `ApplicationException` will be thrown.
+1. This tool queries http://instance-data/latest/meta-data/public-ipv4 to obtain the public IP address of the instance it runs on. If do not execute this tool on a Amazon EC2 instance an `ApplicationException` will be thrown.
 2. It only creates or updates A (IPv4) records.
