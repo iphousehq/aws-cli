@@ -43,9 +43,9 @@ All examples below create a record or edit a matching one.
 
 ### Download & Install:
 
-Find the [latest release](https://github.com/comsechq/aws-cli/releases).
-Extract the zip in a folder.
-Run the command from the command line prompt.
+1. Find the [latest release](https://github.com/comsechq/aws-cli/releases).
+2. Extract the zip in a folder.
+3. Run the command from the command line prompt.
 
 ### Notes
 
