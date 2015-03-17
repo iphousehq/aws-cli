@@ -70,7 +70,7 @@ namespace Aws.Commands
 
             Console.WriteLine("Unable to load record sets for {0}", options.ZoneId);
 
-            return (int)ExitCode.Success;
+            return Success();
         }
     }
 }
