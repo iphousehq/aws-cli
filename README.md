@@ -14,8 +14,8 @@ You can change the default profile name and/or location as well as the default r
 
 ### Usage:
 
-aws.exe [options]
-            
+    aws.exe [options]
+
 #### Options:
     
     [-region [region]] -list -zones
@@ -45,5 +45,5 @@ All examples below create a record or edit a matching one.
 
 ### Notes
 
-1. This tool queries http://instance-data/latest/meta-data/public-ipv4 to obtain the public IP address of the instance it runs on. If do not execute this tool on a Amazon EC2 instance an `ApplicationException` will be thrown.
+1. This tool queries http://instance-data/latest/meta-data/public-ipv4 to obtain the public IP address of the instance it runs on. If do not execute this tool on a Amazon EC2 instance an `ApplicationException` will be thrown. In other words it will only work for classic EC2 instances. It has not been tested for VPC instances.
 2. It only creates or updates A (IPv4) records.
