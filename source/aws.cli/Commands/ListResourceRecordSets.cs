@@ -15,9 +15,6 @@ namespace Aws.Commands
         [Flag("list")]
         public class Options
         {
-            [Parameter("region")]
-            public string Region { get; set; }
-
             [Parameter("zone-id", Required = true)]
             public string ZoneId { get; set; }
         }
@@ -49,9 +46,7 @@ namespace Aws.Commands
         /// <returns></returns>
         public override int Execute(Options options)
         {
-            var endPoint = Route53Service.ToRegionEndPoint(options.Region);
-
-            var records = Route53Service.ListResourceRecordSets(endPoint, options.ZoneId);
+            var records = Route53Service.ListResourceRecordSets(options.ZoneId);
 
             if (records != null && records.Any())
             {

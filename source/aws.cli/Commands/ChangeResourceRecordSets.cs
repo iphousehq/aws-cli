@@ -18,9 +18,6 @@ namespace Aws.Commands
         [Flag("set")]
         public class Options
         {
-            [Parameter("region")]
-            public string Region { get; set; }
-
             [Parameter("host", Required = true)]
             public string Host { get; set; }
 
@@ -64,12 +61,10 @@ namespace Aws.Commands
         /// <returns></returns>
         public override int Execute(Options options)
         {
-            var endPoint = Route53Service.ToRegionEndPoint(options.Region);
-
             var create = false;
             var domain = new DomainName(options.Host).DomainSansSubDomain;
 
-            var zone = Route53Service.GetZone(endPoint, domain);
+            var zone = Route53Service.GetZone(domain);
 
             if (zone == null)
             {
@@ -77,7 +72,7 @@ namespace Aws.Commands
                 return (int) ExitCode.GeneralError;
             }
 
-            var allRecords = Route53Service.ListResourceRecordSets(endPoint, zone.Id);
+            var allRecords = Route53Service.ListResourceRecordSets(zone.Id);
 
             var match =
                 allRecords.FirstOrDefault(
@@ -140,14 +135,14 @@ namespace Aws.Commands
             
             if (create)
             {
-                Route53Service.CreateResourceRecordSet(endPoint, zone.Id, change);
+                Route53Service.CreateResourceRecordSet(zone.Id, change);
 
                 Console.WriteLine("Created A record {0} with value: {1} (TTL: {2})", change.Name,
                     change.ResourceRecords.First().Value, change.TTL);
             }
             else
             {
-                Route53Service.ReplaceResourceRecordSet(endPoint, zone.Id, match, change);
+                Route53Service.ReplaceResourceRecordSet(zone.Id, match, change);
 
                 Console.WriteLine("Updated A record {0} with value: {1} (TTL: {2})", change.Name,
                     change.ResourceRecords.First().Value, change.TTL);

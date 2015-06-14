@@ -30,16 +30,11 @@ namespace Aws.Commands
         {
             var options = new ChangeResourceRecordSets.Options
                           {
-                              Region = "eu-west-1",
                               Host = "sub.domain.com"
                           };
 
             route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
-
-            route53ServiceMock
-                .Setup(call => call.GetZone(RegionEndpoint.EUWest1, "domain.com"))
+                .Setup(call => call.GetZone("domain.com"))
                 .Returns((HostedZone) null);
             
             var result = command.Execute(options);
@@ -52,31 +47,26 @@ namespace Aws.Commands
         {
             var options = new ChangeResourceRecordSets.Options
                           {
-                              Region = "eu-west-1",
                               Host = "sub.domain.com"
                           };
-
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
 
             var hostedZone = new HostedZone {Id = "AAAAAAAAA1234"};
 
             route53ServiceMock
-                .Setup(call => call.GetZone(RegionEndpoint.EUWest1, "domain.com"))
+                .Setup(call => call.GetZone("domain.com"))
                 .Returns(hostedZone);
 
             route53ServiceMock
-                .Setup(call => call.ListResourceRecordSets(RegionEndpoint.EUWest1, "AAAAAAAAA1234"))
+                .Setup(call => call.ListResourceRecordSets("AAAAAAAAA1234"))
                 .Returns(new List<ResourceRecordSet>());
 
             var result = command.Execute(options);
 
             route53ServiceMock
-                .Verify(call => call.CreateResourceRecordSet(RegionEndpoint.EUWest1, It.IsAny<string>(), It.IsAny<ResourceRecordSet>()), Times.Never());
+                .Verify(call => call.CreateResourceRecordSet(It.IsAny<string>(), It.IsAny<ResourceRecordSet>()), Times.Never());
 
             route53ServiceMock
-                .Verify(call => call.ReplaceResourceRecordSet(RegionEndpoint.EUWest1, It.IsAny<string>(), It.IsAny<ResourceRecordSet>(), It.IsAny<ResourceRecordSet>()), Times.Never());
+                .Verify(call => call.ReplaceResourceRecordSet(It.IsAny<string>(), It.IsAny<ResourceRecordSet>(), It.IsAny<ResourceRecordSet>()), Times.Never());
 
             Assert.AreEqual(-1, result);
         }
@@ -90,31 +80,23 @@ namespace Aws.Commands
                               Ttl = 300
                           };
 
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint(null))
-                .Returns(RegionEndpoint.EUWest1);
-
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
-
             var hostedZone = new HostedZone { Id = "AAAAAAAAA1234" };
 
             route53ServiceMock
-                .Setup(call => call.GetZone(RegionEndpoint.EUWest1, "domain.com"))
+                .Setup(call => call.GetZone("domain.com"))
                 .Returns(hostedZone);
 
             route53ServiceMock
-                .Setup(call => call.ListResourceRecordSets(RegionEndpoint.EUWest1, "AAAAAAAAA1234"))
+                .Setup(call => call.ListResourceRecordSets("AAAAAAAAA1234"))
                 .Returns(new List<ResourceRecordSet>());
 
             var result = command.Execute(options);
 
             route53ServiceMock
-                .Verify(call => call.CreateResourceRecordSet(RegionEndpoint.EUWest1, It.IsAny<string>(), It.IsAny<ResourceRecordSet>()), Times.Never());
+                .Verify(call => call.CreateResourceRecordSet(It.IsAny<string>(), It.IsAny<ResourceRecordSet>()), Times.Never());
 
             route53ServiceMock
-                .Verify(call => call.ReplaceResourceRecordSet(RegionEndpoint.EUWest1, It.IsAny<string>(), It.IsAny<ResourceRecordSet>(), It.IsAny<ResourceRecordSet>()), Times.Never());
+                .Verify(call => call.ReplaceResourceRecordSet(It.IsAny<string>(), It.IsAny<ResourceRecordSet>(), It.IsAny<ResourceRecordSet>()), Times.Never());
 
             Assert.AreEqual(-1, result);
         }
@@ -129,28 +111,20 @@ namespace Aws.Commands
                               Ttl = 300
                           };
 
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint(null))
-                .Returns(RegionEndpoint.EUWest1);
-
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
-
             var hostedZone = new HostedZone { Id = "AAAAAAAAA1234" };
 
             route53ServiceMock
-                .Setup(call => call.GetZone(RegionEndpoint.EUWest1, "domain.com"))
+                .Setup(call => call.GetZone("domain.com"))
                 .Returns(hostedZone);
 
             route53ServiceMock
-                .Setup(call => call.ListResourceRecordSets(RegionEndpoint.EUWest1, "AAAAAAAAA1234"))
+                .Setup(call => call.ListResourceRecordSets("AAAAAAAAA1234"))
                 .Returns(new List<ResourceRecordSet>());
 
             var result = command.Execute(options);
 
             route53ServiceMock
-                .Verify(call => call.CreateResourceRecordSet(RegionEndpoint.EUWest1, It.IsAny<string>(), It.IsAny<ResourceRecordSet>()), Times.Once());
+                .Verify(call => call.CreateResourceRecordSet(It.IsAny<string>(), It.IsAny<ResourceRecordSet>()), Times.Once());
 
             Assert.AreEqual(0, result);
         }
@@ -165,18 +139,10 @@ namespace Aws.Commands
                               Ttl = 300
                           };
 
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint(null))
-                .Returns(RegionEndpoint.EUWest1);
-
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
-
             var hostedZone = new HostedZone { Id = "AAAAAAAAA1234" };
 
             route53ServiceMock
-                .Setup(call => call.GetZone(RegionEndpoint.EUWest1, "domain.com"))
+                .Setup(call => call.GetZone("domain.com"))
                 .Returns(hostedZone);
 
             var match = new ResourceRecordSet {Name = "sub.domain.com"};
@@ -184,7 +150,7 @@ namespace Aws.Commands
             var records = new List<ResourceRecordSet> {match};
 
             route53ServiceMock
-                .Setup(call => call.ListResourceRecordSets(RegionEndpoint.EUWest1, "AAAAAAAAA1234"))
+                .Setup(call => call.ListResourceRecordSets("AAAAAAAAA1234"))
                 .Returns(records);
 
             route53ServiceMock
@@ -194,7 +160,7 @@ namespace Aws.Commands
             var result = command.Execute(options);
 
             route53ServiceMock
-                .Verify(call => call.ReplaceResourceRecordSet(RegionEndpoint.EUWest1, "AAAAAAAAA1234", match, It.IsAny<ResourceRecordSet>()), Times.Once());
+                .Verify(call => call.ReplaceResourceRecordSet("AAAAAAAAA1234", match, It.IsAny<ResourceRecordSet>()), Times.Once());
 
             Assert.AreEqual(0, result);
         }
@@ -209,18 +175,10 @@ namespace Aws.Commands
                               Ttl = 300
                           };
 
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint(null))
-                .Returns(RegionEndpoint.EUWest1);
-
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
-
             var hostedZone = new HostedZone { Id = "AAAAAAAAA1234" };
 
             route53ServiceMock
-                .Setup(call => call.GetZone(RegionEndpoint.EUWest1, "domain.com"))
+                .Setup(call => call.GetZone("domain.com"))
                 .Returns(hostedZone);
 
             var match = new ResourceRecordSet { Name = "sub.domain.com" };
@@ -228,7 +186,7 @@ namespace Aws.Commands
             var records = new List<ResourceRecordSet> { match };
 
             route53ServiceMock
-                .Setup(call => call.ListResourceRecordSets(RegionEndpoint.EUWest1, "AAAAAAAAA1234"))
+                .Setup(call => call.ListResourceRecordSets("AAAAAAAAA1234"))
                 .Returns(records);
 
             route53ServiceMock
@@ -238,7 +196,7 @@ namespace Aws.Commands
             var result = command.Execute(options);
 
             route53ServiceMock
-                .Verify(call => call.ReplaceResourceRecordSet(RegionEndpoint.EUWest1, "AAAAAAAAA1234", match, It.IsAny<ResourceRecordSet>()), Times.Once());
+                .Verify(call => call.ReplaceResourceRecordSet("AAAAAAAAA1234", match, It.IsAny<ResourceRecordSet>()), Times.Once());
 
             Assert.AreEqual(0, result);
         }

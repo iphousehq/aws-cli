@@ -14,8 +14,6 @@ namespace Aws.Commands
         [Flag("list", "zones")]
         public class Options
         {
-            [Parameter("region")]
-            public string Region { get; set; }
         }
 
         #region Dependencies
@@ -46,9 +44,7 @@ namespace Aws.Commands
         /// <exception cref="System.NotImplementedException"></exception>
         public override int Execute(Options options)
         {
-            var endPoint = Route53Service.ToRegionEndPoint(options.Region);
-
-            var zones = Route53Service.ListHostedZones(endPoint);
+            var zones = Route53Service.ListHostedZones();
 
             var table = new TextTable("Id", "Zone");
             table.AddSeperator();

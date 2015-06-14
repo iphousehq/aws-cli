@@ -2,13 +2,13 @@
 
 This utility is designed to complement the official [aws cli](http://aws.amazon.com/cli/).
 
-aws.exe leverages the AWS SDK for .NET to create or update A records on Route 53.
+aws.exe leverages the AWS SDK and the instance `meta-data` to set A records on Route 53.
 
 If you call this tool when a windows instance starts you effectively get a DynDNS ersatz!
 
 ### Configuration:
 
-This tool tries to load the default AWS credentials set for example by running `aws configure` after having installed the official [aws cli](http://aws.amazon.com/cli/).
+This tool load the default AWS credentials (the set by running `aws configure` after having installed the official [aws cli](http://aws.amazon.com/cli/).
 
 You can change the default profile name and/or location as well as the default region in the app.config file.
 
@@ -17,10 +17,25 @@ You can change the default profile name and/or location as well as the default r
     aws.exe [options]
 
 #### Options:
-    
-    [-region [region]] -list -zones
-    [-region [region]] -list -zone zone
-    [-region [region]] -set -host [subdomain] [-ip [ip]|-public-ip|-local-ip]] [-ttl [ttl]]
+
+```
+-list -zones
+-list -zone zone
+-set -host [subdomain] [-ip [ip]|-public-ip|-local-ip]] [-ttl [ttl]]
+```
+Optional switches
+
+```
+-profile-name [name]
+-profiles-location [pathToConfigFile]
+-region [region]
+```
+
+Default values (unless overriden in `aws.config` file):
+
+ - Profile name: `default`
+ - Profiles locations: `~\.aws\config` (current user folder)
+ - Region: `eu-west-1`
 
 ### Examples
 
@@ -47,3 +62,4 @@ All examples below create a record or edit a matching one.
 
 1. This tool queries http://instance-data/latest/meta-data/public-ipv4 to obtain the public IP address of the instance it runs on. If do not execute this tool on a Amazon EC2 instance an `ApplicationException` will be thrown. In other words it will only work for classic EC2 instances. It has not been tested for VPC instances.
 2. It only creates or updates A (IPv4) records.
+3. EC2 classic and VPC instances are supported (VPC instances must be assigned a public or elastic IP at _launch time_).

@@ -28,17 +28,10 @@ namespace Aws.Commands
         [Test]
         public void TestListHostedZones()
         {
-            var options = new ListHostedZones.Options
-                          {
-                              Region = "eu-west-1"
-                          };
+            var options = new ListHostedZones.Options();
 
             route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint("eu-west-1"))
-                .Returns(RegionEndpoint.EUWest1);
-
-            route53ServiceMock
-                .Setup(call => call.ListHostedZones(RegionEndpoint.EUWest1))
+                .Setup(call => call.ListHostedZones())
                 .Returns(new List<HostedZone>());
 
             var result = command.Execute(options);

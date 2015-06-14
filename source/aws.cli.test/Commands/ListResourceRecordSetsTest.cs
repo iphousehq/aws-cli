@@ -31,14 +31,10 @@ namespace Aws.Commands
                               ZoneId = "AABBDDCCDDEE"
                           };
 
-            route53ServiceMock
-                .Setup(call => call.ToRegionEndPoint(null))
-                .Returns(RegionEndpoint.APNortheast1);
-            
             var result = command.Execute(options);
 
             route53ServiceMock
-                .Verify(call => call.ListResourceRecordSets(RegionEndpoint.APNortheast1, "AABBDDCCDDEE"), Times.Once());
+                .Verify(call => call.ListResourceRecordSets("AABBDDCCDDEE"), Times.Once());
 
             Assert.AreEqual(0, result);
         }

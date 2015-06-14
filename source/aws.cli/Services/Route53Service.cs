@@ -39,6 +39,44 @@ namespace Aws.Services
         }
 
         /// <summary>
+        /// Initialises the route53 client.
+        /// </summary>
+        /// <returns></returns>
+        public AmazonRoute53Client InitialiseRoute53Client()
+        {
+            // Profile Name
+            var profileName = Sugar.Command.Parameters.Current.AsString("profile-name", null);
+            if (string.IsNullOrEmpty(profileName))
+            {
+                profileName = ConfigurationManager.AppSettings["AWSProfileName"];
+            }
+
+            // Profiles Location
+            var profilesLocation = Sugar.Command.Parameters.Current.AsString("profiles-location", null);
+            if (string.IsNullOrEmpty(profilesLocation))
+            {
+                profilesLocation = ConfigurationManager.AppSettings["AWSProfilesLocation"];
+            }
+            if (string.IsNullOrEmpty(profilesLocation))
+            {
+                profilesLocation = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\.aws\config";
+            }
+
+            var credentials = new StoredProfileAWSCredentials(profileName, profilesLocation);
+            
+            // Region
+            var regionName = Sugar.Command.Parameters.Current.AsString("region", null);
+            if (string.IsNullOrEmpty(regionName))
+            {
+                regionName = ConfigurationManager.AppSettings["AWSDefaultRegionEndPoint"];
+            }
+
+            var region = RegionEndpoint.GetBySystemName(regionName);
+
+            return new AmazonRoute53Client(credentials, region);
+        }
+
+        /// <summary>
         /// Gets the public ip address from the instace meta data HTTP API.
         /// </summary>
         /// <returns></returns>
@@ -78,40 +116,12 @@ namespace Aws.Services
         }
 
         /// <summary>
-        /// Converts a region string to a region end point.
-        /// </summary>
-        /// <param name="region">The region (e.g. eu-west-1).</param>
-        /// <returns></returns>
-        public RegionEndpoint ToRegionEndPoint(string region)
-        {
-            if (string.IsNullOrEmpty(region))
-            {
-                region = ConfigurationManager.AppSettings["AWSDefaultRegionEndPoint"];
-            }
-
-            return RegionEndpoint.GetBySystemName(region);
-        }
-
-        /// <summary>
-        /// Initialises the route53 client.
-        /// </summary>
-        /// <param name="region">The region.</param>
-        /// <returns></returns>
-        public AmazonRoute53Client InitialiseRoute53Client(RegionEndpoint region)
-        {
-            var credentials = new StoredProfileAWSCredentials();
-
-            return new AmazonRoute53Client(credentials, region);
-        }
-
-        /// <summary>
         /// Lists the hosted zones.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
         /// <returns></returns>
-        public List<HostedZone> ListHostedZones(RegionEndpoint endpoint)
+        public List<HostedZone> ListHostedZones()
         {
-            var client = InitialiseRoute53Client(endpoint);
+            var client = InitialiseRoute53Client();
 
             var request = new ListHostedZonesRequest();
 
@@ -123,14 +133,13 @@ namespace Aws.Services
         /// <summary>
         /// Gets the zone.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
         /// <param name="domainName">Name of the domain.</param>
         /// <returns></returns>
-        public HostedZone GetZone(RegionEndpoint endpoint, string domainName)
+        public HostedZone GetZone(string domainName)
         {
             var request = new ListHostedZonesRequest();
 
-            var client = InitialiseRoute53Client(endpoint);
+            var client = InitialiseRoute53Client();
 
             var response = client.ListHostedZones(request);
 
@@ -142,17 +151,16 @@ namespace Aws.Services
         /// <summary>
         /// Lists the resource record sets in the specified hosted zone.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
         /// <param name="hostedZoneId">The hosted zone identifier.</param>
         /// <returns></returns>
-        public List<ResourceRecordSet> ListResourceRecordSets(RegionEndpoint endpoint, string hostedZoneId)
+        public List<ResourceRecordSet> ListResourceRecordSets(string hostedZoneId)
         {
             var request = new ListResourceRecordSetsRequest
                           {
                               HostedZoneId = hostedZoneId
                           };
 
-            var client = InitialiseRoute53Client(endpoint);
+            var client = InitialiseRoute53Client();
 
             var response = client.ListResourceRecordSets(request);
 
@@ -162,11 +170,10 @@ namespace Aws.Services
         /// <summary>
         /// Creates the resource record set.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
         /// <param name="hostedZoneId">The hosted zone identifier.</param>
         /// <param name="newRecord">The new record.</param>
         /// <returns></returns>
-        public ChangeInfo CreateResourceRecordSet(RegionEndpoint endpoint, string hostedZoneId, ResourceRecordSet newRecord)
+        public ChangeInfo CreateResourceRecordSet(string hostedZoneId, ResourceRecordSet newRecord)
         {
             var changes = new List<Change>
                           {
@@ -177,18 +184,17 @@ namespace Aws.Services
                               }
                           };
 
-            return SubmitChangeResourceRecordSets(endpoint, hostedZoneId, changes);
+            return SubmitChangeResourceRecordSets(hostedZoneId, changes);
         }
 
         /// <summary>
         /// Replaces the resource record set.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
         /// <param name="hostedZoneId">The hosted zone identifier.</param>
         /// <param name="oldRecord">The old record.</param>
         /// <param name="newRecord">The new record.</param>
         /// <returns></returns>
-        public ChangeInfo ReplaceResourceRecordSet(RegionEndpoint endpoint, string hostedZoneId, ResourceRecordSet oldRecord, ResourceRecordSet newRecord)
+        public ChangeInfo ReplaceResourceRecordSet(string hostedZoneId, ResourceRecordSet oldRecord, ResourceRecordSet newRecord)
         {
             var changes = new List<Change>
                           {
@@ -204,17 +210,16 @@ namespace Aws.Services
                               }
                           };
 
-            return SubmitChangeResourceRecordSets(endpoint, hostedZoneId, changes);
+            return SubmitChangeResourceRecordSets(hostedZoneId, changes);
         }
 
         /// <summary>
         /// Submits the change request.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
         /// <param name="hostedZoneId">The hosted zone identifier.</param>
         /// <param name="changes">The changes.</param>
         /// <returns></returns>
-        private ChangeInfo SubmitChangeResourceRecordSets(RegionEndpoint endpoint, string hostedZoneId, List<Change> changes)
+        private ChangeInfo SubmitChangeResourceRecordSets(string hostedZoneId, List<Change> changes)
         {
             var request = new ChangeResourceRecordSetsRequest
                           {
@@ -222,7 +227,7 @@ namespace Aws.Services
                               ChangeBatch = new ChangeBatch {Changes = changes}
                           };
 
-            var client = InitialiseRoute53Client(endpoint);
+            var client = InitialiseRoute53Client();
 
             var response = client.ChangeResourceRecordSets(request);
 
