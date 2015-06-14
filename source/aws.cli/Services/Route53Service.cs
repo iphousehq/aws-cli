@@ -45,7 +45,7 @@ namespace Aws.Services
         public AmazonRoute53Client InitialiseRoute53Client()
         {
             // Profile Name
-            var profileName = Sugar.Command.Parameters.Current.AsString("profile-name", null);
+            var profileName = Sugar.Command.Parameters.Current.AsString("profile", null);
             if (string.IsNullOrEmpty(profileName))
             {
                 profileName = ConfigurationManager.AppSettings["AWSProfileName"];

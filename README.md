@@ -26,16 +26,16 @@ You can change the default profile name and/or location as well as the default r
 Optional switches
 
 ```
--profile-name [name]
+-profile [name]
 -profiles-location [pathToConfigFile]
 -region [region]
 ```
 
 Default values (unless overriden in `aws.config` file):
 
- - Profile name: `default`
- - Profiles locations: `~\.aws\config` (current user folder)
- - Region: `eu-west-1`
+ - `profile`: "default"
+ - `profiles-location`: "~\.aws\config" (current user folder)
+ - `region`: "eu-west-1"
 
 ### Examples
 
