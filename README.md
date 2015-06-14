@@ -60,6 +60,6 @@ All examples below create a record or edit a matching one.
 
 ### Notes
 
-1. This tool queries http://instance-data/latest/meta-data/public-ipv4 to obtain the public IP address of the instance it runs on. If do not execute this tool on a Amazon EC2 instance an `ApplicationException` will be thrown. In other words it will only work for classic EC2 instances. It has not been tested for VPC instances.
+1. http://169.254.169.254/latest/meta-data/public-ipv4 is used to obtain the public IP address of the instance it runs on. EC2 classic and VPC instances are supported (VPC instances must be assigned a public or elastic IP at _launch time_).
+2. http://169.254.169.254/latest/meta-data/local-ipv4 is used to optain the private IP address of the instance.
 2. It only creates or updates A (IPv4) records.
-3. EC2 classic and VPC instances are supported (VPC instances must be assigned a public or elastic IP at _launch time_).

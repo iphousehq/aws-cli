@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using Amazon;
 using Amazon.Route53;
 using Amazon.Route53.Model;
@@ -77,21 +75,34 @@ namespace Aws.Services
         }
 
         /// <summary>
-        /// Gets the public ip address from the instace meta data HTTP API.
+        /// Gets the meta instance metadata.
         /// </summary>
+        /// <param name="key">The key (e.g. public-ipv4.</param>
         /// <returns></returns>
-        /// <exception cref="System.ApplicationException">Unable to determine public IP address from: http://instance-data/latest/meta-data/public-ipv4</exception>
-        public string GetPublicIpAddress()
+        /// <exception cref="System.ArgumentException">Unable to determine meta data from: http://169.254.169.254/latest/meta-data/ +
+        ///                                         key</exception>
+        public string GetMetaInstanceMetadata(string key)
         {
             // This only works if you run this utility on an EC2 instance
-            var html = HttpService.Get("http://instance-data/latest/meta-data/public-ipv4");
+            var html = HttpService.Get("http://169.254.169.254/latest/meta-data/" + key);
 
             if (html.Success)
             {
                 return html.ToString();
             }
 
-            throw new ApplicationException("Unable to determine public IP address from: http://instance-data/latest/meta-data/public-ipv4");
+            throw new ArgumentException("Unable to determine meta data from: http://169.254.169.254/latest/meta-data/" +
+                                        key);
+        }
+
+        /// <summary>
+        /// Gets the public ip address from the instace meta data HTTP API.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.ApplicationException">Unable to determine public IP address from: http://169.254.169.254/latest/meta-data/public-ipv4</exception>
+        public string GetPublicIpAddress()
+        {
+            return GetMetaInstanceMetadata("public-ipv4");
         }
 
         /// <summary>
@@ -100,19 +111,7 @@ namespace Aws.Services
         /// <returns></returns>
         public string GetLocalIpAddress()
         {
-            var localIp = string.Empty;
-
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    localIp = ip.ToString();
-                }
-            }
-
-            return localIp;
+            return GetMetaInstanceMetadata("local-ipv4");
         }
 
         /// <summary>
