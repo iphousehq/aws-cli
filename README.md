@@ -63,3 +63,9 @@ All examples below create a record or edit a matching one.
 1. http://169.254.169.254/latest/meta-data/public-ipv4 is used to obtain the public IP address of the instance it runs on. EC2 classic and VPC instances are supported (VPC instances must be assigned a public or elastic IP at _launch time_).
 2. http://169.254.169.254/latest/meta-data/local-ipv4 is used to optain the private IP address of the instance.
 2. It only creates or updates A (IPv4) records.
+
+### License
+
+This project is licensed under the terms of the [MIT license](https://github.com/comsechq/sugar/blob/master/LICENSE.txt). 
+
+By submitting a pull request for this project, you agree to license your contribution under the MIT license to this project.

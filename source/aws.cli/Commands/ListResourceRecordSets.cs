@@ -4,6 +4,7 @@ using Aws.Interfaces.Services;
 using Aws.Services;
 using Sugar;
 using Sugar.Command;
+using Sugar.Extensions;
 
 namespace Aws.Commands
 {

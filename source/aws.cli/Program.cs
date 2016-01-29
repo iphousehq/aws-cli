@@ -6,9 +6,9 @@
         /// Starting point for the program logic
         /// </summary>
         /// <param name="args">The args.</param>
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            new AwsConsole().Run(args);
+            return new AwsConsole().Run(args);
         }
     }
 }

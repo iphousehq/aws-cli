@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("aws.cli.test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Comsec Solutions Ltd")]
+[assembly: AssemblyCompany("Comsec")]
 [assembly: AssemblyProduct("aws.cli.test")]
-[assembly: AssemblyCopyright("Copyright © Comsec Solutions Ltd 2013")]
+[assembly: AssemblyCopyright("Copyright © Comsec Investigations Ltd 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

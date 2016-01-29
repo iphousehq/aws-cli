@@ -1,5 +1,5 @@
 ﻿using System;
-using Aws.Commands;
+using System.Linq;
 using Sugar.Command;
 
 namespace Aws
@@ -7,20 +7,76 @@ namespace Aws
     /// <summary>
     /// Amazon Web Service Console
     /// </summary>
-    public class AwsConsole : BaseCommandConsole
+    public class AwsConsole : BaseConsole
     {
-        public AwsConsole()
+        /// <summary>
+        /// Entry point for the program logic
+        /// </summary>
+        protected override int Main()
         {
-            Commands.Add(new ListHostedZones());
-            Commands.Add(new ListResourceRecordSets());
-            Commands.Add(new ChangeResourceRecordSets());
+            var exitCode = Arguments.Count > 0 ? Run(Arguments) : Default();
+
+            return exitCode;
+        }
+
+        /// <summary>
+        /// Runs the specified parameters.
+        /// </summary>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        public int Run(Parameters parameters)
+        {
+            var exitCode = (int)ExitCode.GeneralError;
+
+            var commandType = new BoundCommandFactory().GetCommandType(parameters,
+                () => GetType().Assembly.GetTypes()
+                    .Where(type => type.Namespace != null && type.Namespace.StartsWith("Aws.Commands"))
+                    .Where(type => type.Name == "Options"));
+
+            if (commandType != null)
+            {
+                exitCode = Run(commandType, parameters);
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write("{0:yyyy-MM-dd HH:mm:ss} : ", DateTime.UtcNow);
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Unknown command arguments: ");
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write(Arguments);
+
+                Console.ResetColor();
+            }
+
+            return exitCode;
+        }
+
+        /// <summary>
+        /// Runs the specified parameters.
+        /// </summary>
+        /// <param name="commandType">Type of the command.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
+        public int Run(Type commandType, Parameters parameters)
+        {
+            // Assign current parameters
+            Parameters.SetCurrent(parameters.ToString());
+
+            var command = (ICommand)Activator.CreateInstance(commandType);
+
+            command.BindParameters(parameters);
+
+            return command.Execute();
         }
 
         /// <summary>
         /// Defaults this instance.
         /// </summary>
         /// <returns></returns>
-        public override int Default()
+        public int Default()
         {
             Console.WriteLine();
             Console.WriteLine(" AWS CLI Route 53 companion tool");
