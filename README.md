@@ -8,9 +8,12 @@ If you call this tool when a windows instance starts you effectively get a DynDN
 
 ### Configuration:
 
-This tool load the default AWS credentials (the set by running `aws configure` after having installed the official [aws cli](http://aws.amazon.com/cli/).
+By default aws.exe will rely on the instance having been launched with an IAM role.
 
-You can change the default profile name and/or location as well as the default region in the app.config file.
+If you have the official [aws cli](http://aws.amazon.com/cli/) installed, you can create a profile of credentials  
+(run `aws configure --profile [name]` from the command line, then use the `--profile [name]` parameter).
+
+To specify the region, either modifiy the app.config aws section accordingly or use the `-region` parameter.
 
 ### Usage:
 
@@ -31,12 +34,6 @@ Optional switches
 -region [region]
 ```
 
-Default values (unless overriden in `aws.config` file):
-
- - `profile`: "default"
- - `profiles-location`: "~\.aws\config" (current user folder)
- - `region`: "eu-west-1"
-
 ### Examples
 
 - List all hosted zones:
@@ -44,6 +41,9 @@ Default values (unless overriden in `aws.config` file):
 
 - List all records in the given zone:
     `aws -list -zone-id AABBCCDDEE`
+
+- List all records in the given zone with a named profile and region:
+    `aws -list -zone-id AABBCCDDEE -profile "blah" -profile-location "~\.aws\config" -region "eu-west-1"`
 
 All examples below create a record or edit a matching one.
 
@@ -62,7 +62,7 @@ All examples below create a record or edit a matching one.
 
 1. http://169.254.169.254/latest/meta-data/public-ipv4 is used to obtain the public IP address of the instance it runs on. EC2 classic and VPC instances are supported (VPC instances must be assigned a public or elastic IP at _launch time_).
 2. http://169.254.169.254/latest/meta-data/local-ipv4 is used to optain the private IP address of the instance.
-2. It only creates or updates A (IPv4) records.
+3. It only creates or updates A (IPv4) records.
 
 ### License
 

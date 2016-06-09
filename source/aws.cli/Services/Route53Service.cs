@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.IO;
 using System.Linq;
 using Amazon;
 using Amazon.Route53;
@@ -24,9 +24,53 @@ namespace Aws.Services
         /// <value>
         /// The HTTP service.
         /// </value>
-        public HttpService HttpService { get; set; } 
+        public HttpService HttpService { get; set; }
 
         #endregion
+
+        private AmazonRoute53Client client;
+
+        private AmazonRoute53Client Client
+        {
+            get
+            {
+                if (client != null)
+                {
+                    return client;
+                }
+                
+                // Profile
+                var profileName = Sugar.Command.Parameters.Current.AsString("profile", null);
+                if (!string.IsNullOrEmpty(profileName))
+                {
+                    var profilesLocation = Sugar.Command.Parameters.Current.AsString("profiles-location", null);
+                    if (string.IsNullOrEmpty(profilesLocation))
+                    {
+                        profilesLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\.aws\config");
+                    }
+
+                    var credentials = new StoredProfileAWSCredentials(profileName, profilesLocation);
+
+                    client = new AmazonRoute53Client(credentials);
+                }
+                else
+                {
+                    client = new AmazonRoute53Client();
+                }
+
+                // Region
+                var regionName = Sugar.Command.Parameters.Current.AsString("region", null);
+                if (!string.IsNullOrEmpty(regionName))
+                {
+                    var region = RegionEndpoint.GetBySystemName(regionName);
+
+                    client.Config.RegionEndpoint = region;
+                }
+
+                return client;
+            }
+        }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Route53Service"/> class.
@@ -35,45 +79,7 @@ namespace Aws.Services
         {
             HttpService = new HttpService();
         }
-
-        /// <summary>
-        /// Initialises the route53 client.
-        /// </summary>
-        /// <returns></returns>
-        public AmazonRoute53Client InitialiseRoute53Client()
-        {
-            // Profile Name
-            var profileName = Sugar.Command.Parameters.Current.AsString("profile", null);
-            if (string.IsNullOrEmpty(profileName))
-            {
-                profileName = ConfigurationManager.AppSettings["AWSProfileName"];
-            }
-
-            // Profiles Location
-            var profilesLocation = Sugar.Command.Parameters.Current.AsString("profiles-location", null);
-            if (string.IsNullOrEmpty(profilesLocation))
-            {
-                profilesLocation = ConfigurationManager.AppSettings["AWSProfilesLocation"];
-            }
-            if (string.IsNullOrEmpty(profilesLocation))
-            {
-                profilesLocation = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\.aws\config";
-            }
-
-            var credentials = new StoredProfileAWSCredentials(profileName, profilesLocation);
-            
-            // Region
-            var regionName = Sugar.Command.Parameters.Current.AsString("region", null);
-            if (string.IsNullOrEmpty(regionName))
-            {
-                regionName = ConfigurationManager.AppSettings["AWSDefaultRegionEndPoint"];
-            }
-
-            var region = RegionEndpoint.GetBySystemName(regionName);
-
-            return new AmazonRoute53Client(credentials, region);
-        }
-
+        
         /// <summary>
         /// Gets the meta instance metadata.
         /// </summary>
@@ -91,8 +97,7 @@ namespace Aws.Services
                 return html.ToString();
             }
 
-            throw new ArgumentException("Unable to determine meta data from: http://169.254.169.254/latest/meta-data/" +
-                                        key);
+            throw new ArgumentException("Unable to determine meta data from: http://169.254.169.254/latest/meta-data/" + key);
         }
 
         /// <summary>
@@ -120,11 +125,9 @@ namespace Aws.Services
         /// <returns></returns>
         public List<HostedZone> ListHostedZones()
         {
-            var client = InitialiseRoute53Client();
-
             var request = new ListHostedZonesRequest();
 
-            var response = client.ListHostedZones(request);
+            var response = Client.ListHostedZones(request);
 
             return response.HostedZones;
         }
@@ -137,14 +140,11 @@ namespace Aws.Services
         public HostedZone GetZone(string domainName)
         {
             var request = new ListHostedZonesRequest();
-
-            var client = InitialiseRoute53Client();
-
-            var response = client.ListHostedZones(request);
+            
+            var response = Client.ListHostedZones(request);
 
             return response.HostedZones
-                           .FirstOrDefault(
-                               z => z.Name.StartsWith(domainName, StringComparison.InvariantCultureIgnoreCase));
+                           .FirstOrDefault(z => z.Name.StartsWith(domainName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -158,10 +158,8 @@ namespace Aws.Services
                           {
                               HostedZoneId = hostedZoneId
                           };
-
-            var client = InitialiseRoute53Client();
-
-            var response = client.ListResourceRecordSets(request);
+            
+            var response = Client.ListResourceRecordSets(request);
 
             return response.ResourceRecordSets;
         }
@@ -225,10 +223,8 @@ namespace Aws.Services
                               HostedZoneId = hostedZoneId,
                               ChangeBatch = new ChangeBatch {Changes = changes}
                           };
-
-            var client = InitialiseRoute53Client();
-
-            var response = client.ChangeResourceRecordSets(request);
+            
+            var response = Client.ChangeResourceRecordSets(request);
 
             return response.ChangeInfo;
         }

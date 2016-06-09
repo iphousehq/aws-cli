@@ -94,17 +94,11 @@ namespace Aws
             Console.WriteLine("  -list -zone-id value");
             Console.WriteLine("  -set -host [subdomain] [-ip [value]|-public-ip|-local-ip]] -ttl [ttl]");
             Console.WriteLine();
-            Console.WriteLine(" To use a different Amazon CLI profile add the following parameter");
+            Console.WriteLine(" To use a different credentials or region specify the following parameters");
             Console.WriteLine();
             Console.WriteLine(" -profile [value]");
             Console.WriteLine(" -profiles-location [pathToConfigFile]");
             Console.WriteLine(" -region [value]");
-            Console.WriteLine();
-            Console.WriteLine(" Default values (unless overriden in `aws.config` file):");
-            Console.WriteLine();
-            Console.WriteLine(" - profile: `default`");
-            Console.WriteLine(" - profiles-location: `~\\.aws\\config` (current user folder)");
-            Console.WriteLine(" - region: `eu-west-1`");
             Console.WriteLine();
             Console.WriteLine(" Disclaimer: Use at your own risk.");
 
