@@ -6,6 +6,7 @@ using Amazon;
 using Amazon.Route53;
 using Amazon.Route53.Model;
 using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using Aws.Interfaces.Services;
 using Sugar.Net;
 
@@ -38,33 +39,44 @@ namespace Aws.Services
                 {
                     return client;
                 }
+
+                RegionEndpoint region = null;
+
+                // Region override
+                var regionName = Sugar.Command.Parameters.Current.AsString("region", null);
+                if (!string.IsNullOrEmpty(regionName))
+                {
+                    region = RegionEndpoint.GetBySystemName(regionName);
+                }
                 
                 // Profile
                 var profileName = Sugar.Command.Parameters.Current.AsString("profile", null);
-                if (!string.IsNullOrEmpty(profileName))
+                if (string.IsNullOrEmpty(profileName))
+                {
+                    client = region == null ? new AmazonRoute53Client() : new AmazonRoute53Client(region);
+                }
+                else
                 {
                     var profilesLocation = Sugar.Command.Parameters.Current.AsString("profiles-location", null);
                     if (string.IsNullOrEmpty(profilesLocation))
                     {
-                        profilesLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\.aws\config");
+                        var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+                        profilesLocation = Path.Combine(userFolder, @".aws\config");
                     }
 
-                    var credentials = new StoredProfileAWSCredentials(profileName, profilesLocation);
+                    AWSCredentials credentials;
 
-                    client = new AmazonRoute53Client(credentials);
-                }
-                else
-                {
-                    client = new AmazonRoute53Client();
-                }
+                    var chain = new CredentialProfileStoreChain(profilesLocation);
 
-                // Region
-                var regionName = Sugar.Command.Parameters.Current.AsString("region", null);
-                if (!string.IsNullOrEmpty(regionName))
-                {
-                    var region = RegionEndpoint.GetBySystemName(regionName);
+                    if (!chain.TryGetAWSCredentials(profileName, out credentials))
+                    {
+                        throw new AmazonClientException("Unable to initialise AWS credentials from profile name");
+                    }
 
-                    client.Config.RegionEndpoint = region;
+                    client = region == null
+                        ? new AmazonRoute53Client(credentials)
+                        : new AmazonRoute53Client(credentials, region);
                 }
 
                 return client;
@@ -90,7 +102,7 @@ namespace Aws.Services
         public string GetMetaInstanceMetadata(string key)
         {
             // This only works if you run this utility on an EC2 instance
-            var html = HttpService.Get("http://169.254.169.254/latest/meta-data/" + key);
+            var html = HttpService.Get("http://169.254.169.254/latest/meta-data/" + key, "");
 
             if (html.Success)
             {

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Amazon;
 using Amazon.Route53.Model;
 using Aws.Interfaces.Services;
 using Moq;
