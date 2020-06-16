@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "aws.cli": {
+      "commandName": "Project",
+      "commandLineArgs": "r53 set oxygen.watchdogapp.com --ttl 303 --profile comsec --region eu-west-1"
+    }
+  }
+}

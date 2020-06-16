@@ -1,56 +1,54 @@
 ## AWS Command Line Interface complement
 
-This utility is designed to complement the official [aws cli](http://aws.amazon.com/cli/).
+CLI utility designed to complement the official [aws cli](http://aws.amazon.com/cli/).
 
-aws.exe leverages the AWS SDK and the instance `meta-data` to set A records on Route 53.
+`comsec-aws.exe` leverages the AWS SDK and the instance `meta-data` to set A records on Route 53.
 
-If you call this tool when a windows instance starts you effectively get a DynDNS ersatz!
+Executing this tool when an EC2 instance starts gives you a DynDNS ersatz!
 
 ### Configuration:
 
-By default aws.exe will rely on the instance having been launched with an IAM role.
+By default `comsec-aws.exe` will rely on the instance having been launched with an _IAM role_ that allows access to R53.
 
 If you have the official [aws cli](http://aws.amazon.com/cli/) installed, you can create a profile of credentials  
 (run `aws configure --profile [name]` from the command line, then use the `--profile [name]` parameter).
 
-To specify the region, either modifiy the app.config aws section accordingly or use the `-region` parameter.
-
 ### Usage:
 
-    aws.exe [options]
+    comsec-aws.exe [options]
 
 #### Options:
 
-```
--list -zones
--list -zone zone
--set -host [subdomain] [-ip [ip]|-public-ip|-local-ip]] [-ttl [ttl]]
+```bash
+r53 list zones
+r53 list zone [zone]
+r53 set [subdomain] [--ip [ip]|--publicIp|--localIp]] [--ttl [ttl]]
 ```
 Optional switches
 
-```
--profile [name]
--profiles-location [pathToConfigFile]
--region [region]
+```bash
+--profile [name]
+--profiles-location [pathToConfigFile]
+--region [region]
 ```
 
 ### Examples
 
 - List all hosted zones:
-    `aws -list -zones`
+    `comsec-aws r53 list zones`
 
 - List all records in the given zone:
-    `aws -list -zone-id AABBCCDDEE`
+    `comsec-aws r53 list AABBCCDDEE`
 
 - List all records in the given zone with a named profile and region:
-    `aws -list -zone-id AABBCCDDEE -profile "blah" -profile-location "~\.aws\config" -region "eu-west-1"`
+    `comsec-aws r53 list AABBCCDDEE --profile blah --profile-location "~\.aws\config" --region eu-west-1`
 
 All examples below create a record or edit a matching one.
 
-- Set record to a given IP address: `aws -set -host sub.domain.com -ip 10.1.2.3`
-- Set record to the instance's public IP and also specify the TTL value: `aws -set -host sub.domain.com -public-ip -ttl 300`
-- Set record to local IP: `aws -set -host internal.sub.domain.com -local-ip -ttl 300`
-- Update the TTL of an existing record: `aws -set -host internal.sub.domain.com -ttl 60`
+- Set record to a given IP address: `comsec-aws r53 set sub.domain.com --ip 10.1.2.3`
+- Set record to the instance's public IP and also specify the TTL value: `comsec-aws r53 set sub.domain.com --publicIp --ttl 300`
+- Set record to local IP: `comsec-aws r53 set internal.sub.domain.com --localIp --ttl 300`
+- Update the TTL of an existing record: `comsec-aws r53 set internal.sub.domain.com --ttl 60`
 
 ### Download & Install:
 
