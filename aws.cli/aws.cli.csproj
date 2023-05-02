@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>comsec-aws</AssemblyName>
     <RootNamespace>Comsec.Aws</RootNamespace>
     <OutputType>Exe</OutputType>
-    <Version>0.2.0.0</Version>
+    <Version>0.2.0.1</Version>
     <Company>Comsec Investigations Ltd</Company>
     <Authors>Comsec Team</Authors>
     <Product>aws-cli</Product>
@@ -16,11 +16,11 @@ If you call this tool when a windows instance starts you effectively get a DynDN
     <PackageId>comsec.aws</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.107.10" />
-    <PackageReference Include="AWSSDK.Route53" Version="3.3.104.19" />
-    <PackageReference Include="comsec.sugar" Version="2.0.75" />
-    <PackageReference Include="comsec.sugar.web" Version="2.0.75" />
-    <PackageReference Include="LightInject" Version="6.3.3" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20303.1" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.106.30" />
+    <PackageReference Include="AWSSDK.Route53" Version="3.7.104.63" />
+    <PackageReference Include="comsec.sugar" Version="2.0.121" />
+    <PackageReference Include="comsec.sugar.web" Version="2.0.121" />
+    <PackageReference Include="LightInject" Version="6.6.3" />
   </ItemGroup>
 </Project>
